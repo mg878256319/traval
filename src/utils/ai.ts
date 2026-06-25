@@ -52,7 +52,11 @@ function buildPrompt(params: SearchParams): string {
     ? `用户选择了标签：${params.tags.join('、')}。你推荐的城市必须高度匹配这些标签！例如用户选了"美食"，必须推荐以美食闻名的城市；选了"海滩"，必须是沿海城市；选了"历史"，必须是历史名城。标签匹配度是最重要的筛选条件。`
     : ''
 
-  return `你是资深中国旅行规划师。现在是${monthNames[now.getMonth()]}，请根据用户需求推荐一个国内城市并生成详细旅行方案。
+  const isMultiDay = params.days >= 5
+
+  return `你是资深中国旅行规划师。现在是${monthNames[now.getMonth()]}，请根据用户需求生成详细旅行方案。
+
+${isMultiDay ? `**重要**：用户选择了${params.days}天行程，这是一个多日深度游。你应该推荐一条旅行线路（2-3个相近的城市/景点组成的区域环线），而不是只待在一个城市。例如：5天可推荐"成都+都江堰+青城山"，7天可推荐"大理+丽江+香格里拉"或"张家界+凤凰古城"，10天可推荐"云南大环线"或"西北青甘环线"。每天移动到下一个目的地，酒店也跟着换。` : `用户选择了${params.days}天行程，推荐一个城市及周边深度游玩。`}
 
 ## 硬性约束（必须满足，否则方案无效）
 ${tagRequirement}
@@ -80,7 +84,7 @@ ${params.people}人${params.days}天总计${params.budget}元。核心理念：*
 - 餐饮约占总预算的20%
 - 门票+其他约占总预算的${Math.round(params.transportMode === 'flight' ? 10 : 15)}%
 - **如果某项费用导致超预算，必须调整方案直到控制在预算内**
-- **费用计算规则**：${params.people}人出行，交通费=单人票价×${params.people}（飞机/高铁/火车按人头，自驾则油费过路费不分人数），住宿费=每间房价格×入住天数（${params.people}人通常住${Math.ceil(params.people / 2)}间房），餐饮费=人均餐费×${params.people}×餐数，门票费=单人票价×${params.people}，total必须≤${params.budget}
+- **费用计算规则**：${params.people}人出行${isMultiDay ? '，跨城交通费=各段高铁/大巴费用总和×${params.people}人' : ''}，交通费=单人票价×${params.people}（自驾则不分人数），住宿费=每间房价格×入住天数（${params.people}人住${Math.ceil(params.people / 2)}间），餐饮费=人均餐费×${params.people}×餐数，门票费=单人票价×${params.people}，total必须≤${params.budget}
 
 ## 方案质量要求
 ### 每日行程（必须非常详细，每个活动至少50字描述）
@@ -89,9 +93,9 @@ ${params.people}人${params.days}天总计${params.budget}元。核心理念：*
 - 每个景点至少写2-3句话描述具体玩什么、看什么
 - 每天推荐2餐当地美食：具体菜名、人均价格、为什么推荐、推荐哪家店或哪个区域
 - 行程节奏合理，景点间的衔接要自然流畅
-- **dailyPlan必须恰好${params.days}天**，每一天都要有详细的上/下午/晚上安排，不能合并天数、不能偷懒、不能最后一天只写"返程"不安排活动
+- **dailyPlan必须恰好${params.days}天**，每一天都要有详细的上/下午/晚上安排${isMultiDay ? '，每天标注当前所在城市，不同城市之间写明交通方式（高铁/大巴/自驾）和耗时' : ''}，不能合并天数、不能偷懒、不能最后一天只写"返程"不安排活动
 
-- **酒店就近原则**：每天推荐的酒店必须靠近当天最后一个景点。如果第二天活动区域仍在同一酒店周边10公里内，可以继续住同一家（省钱省事）；如果活动跨区域了就换附近的酒店。每个酒店必须包含：酒店名称、价格、距景点距离、是否续住
+- **酒店就近原则**：每天推荐的酒店必须靠近当天最后一个景点${isMultiDay ? '。多日跨城线路每天换一个城市，酒店自然跟着换' : '。如果第二天仍在10公里内可续住，跨区域就换'}
 - 酒店档次按每间每晚预算匹配：豪华型≥1000元 | 舒适型500-1000元 | 经济型250-500元 | 实惠型<250元
 - 示例格式："上午8:30从酒店步行10分钟到达XXX景点（门票¥XX），建议游玩2-3小时。这里以XXX闻名，可以参观XXX、XXX。中午12:00在附近的XXX路吃午餐。"
 
@@ -115,9 +119,9 @@ ${params.people}人${params.days}天总计${params.budget}元。核心理念：*
 请返回JSON（不要markdown标记）：
 {
   "destination": {
-    "name": "城市名",
-    "province": "省份",
-    "description": "2-3句完整介绍",
+    "name": "${isMultiDay ? '线路名称如"成都+九寨沟4日环线"' : '城市名'}",
+    "province": "${isMultiDay ? '途经省份' : '省份'}",
+    "description": "${isMultiDay ? '线路亮点介绍（涵盖各城市特色）' : '2-3句完整介绍'}",
     "tags": ["标签"],
     "bestSeason": "最佳季节",
     "attractions": [{"name":"景点","description":"介绍","duration":"时长"}],
