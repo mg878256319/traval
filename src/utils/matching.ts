@@ -134,9 +134,12 @@ export function generateTripPlan(
       hotel: totalDays > 1 && d < totalDays - 1
         ? (() => {
             const near = dayAttractions.length > 0 ? dayAttractions[dayAttractions.length - 1].name : '市中心'
-            if (perRoomBudget >= 2000) return `🏨 近${near} | 奢华型 约${Math.round(perRoomBudget)}元/晚`
-            if (perRoomBudget >= 800) return `🏨 近${near} | ${destination.accommodation.comfort}`
-            return `🏨 近${near} | ${destination.accommodation.budget}`
+            const hotels = ['如家', '汉庭', '全季', '亚朵', '希尔顿欢朋', '洲际']
+            const name = hotels[d % hotels.length]
+            if (perRoomBudget >= 2000) return `${name}酒店(近${near}) 奢华型 约${Math.round(perRoomBudget)}元/晚`
+            if (perRoomBudget >= 800) return `${name}酒店(近${near}) 舒适型 约${Math.round(perRoomBudget)}元/晚`
+            if (perRoomBudget >= 400) return `${name}酒店(近${near}) 经济型 约${Math.round(perRoomBudget)}元/晚`
+            return `${name}(近${near}) 实惠型 约${Math.round(perRoomBudget)}元/晚`
           })()
         : undefined,
     })
