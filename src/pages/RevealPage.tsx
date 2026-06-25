@@ -32,7 +32,6 @@ export default function RevealPage() {
         try {
           resultRef.current = await generateAIPlan(params)
         } catch {
-          // AI failed, fallback to local
           const destination = matchDestination(params)
           const plan = generateTripPlan(destination, params)
           resultRef.current = {
@@ -53,22 +52,21 @@ export default function RevealPage() {
         }
       }
 
+      // Result is ready — show it immediately and play animation
       setResult(resultRef.current)
-
-      // Step 2: Play animation
       setPhase('shaking')
       setStatusText('🔮 正在开启盲盒...')
-      setTimeout(() => setPhase('opening'), 1500)
+
+      // Play animation then navigate
+      setTimeout(() => setPhase('opening'), 1200)
       setTimeout(() => {
         setPhase('revealing')
         setStatusText('📋 正在生成旅行方案...')
-      }, 2600)
+      }, 2200)
       setTimeout(() => {
         setPhase('done')
-        if (resultRef.current) {
-          navigate('/result', { state: resultRef.current })
-        }
-      }, 4000)
+        if (resultRef.current) navigate('/result', { state: resultRef.current })
+      }, 3400)
     }
 
     run()
@@ -169,7 +167,7 @@ export default function RevealPage() {
 
       {/* Reveal text */}
       <AnimatePresence>
-        {phase === 'revealing' && result && (
+        {(phase === 'revealing' || phase === 'opening' || phase === 'shaking') && result && (
           <motion.div
             className="text-center relative z-10"
             initial={{ opacity: 0, scale: 0.5, y: 40 }}
