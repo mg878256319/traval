@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Noto Sans SC', system-ui, sans-serif;
+  --color-brand: #ff5e7a;
+  --color-brand-dark: #e04e68;
+  --color-brand-light: #ff8fa3;
+  --color-brand-glow: #ff5e7a33;
+  --color-bg: #080812;
+  --color-bg-card: #12122a;
+  --color-bg-card-hover: #1c1c3a;
+  --color-bg-elevated: #181835;
+  --color-text: #eaeaef;
+  --color-text-secondary: #a0a0b8;
+  --color-text-muted: #6b6b80;
+  --color-gold: #f0b848;
+  --color-gold-light: #f5d080;
+  --color-gold-dark: #d4a030;
+  --color-border: #ffffff0a;
+  --color-border-light: #ffffff12;
+  --color-success: #4ade80;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* html2canvas workaround */
+.no-blur {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Blind box 3D */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.box-face {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  backface-visibility: hidden;
+}
+
+.box-front  { transform: translateZ(80px); }
+.box-back   { transform: rotateY(180deg) translateZ(80px); }
+.box-left   { transform: rotateY(-90deg) translateZ(80px); }
+.box-right  { transform: rotateY(90deg) translateZ(80px); }
+.box-top    { transform: rotateX(90deg) translateZ(80px); }
+.box-bottom { transform: rotateX(-90deg) translateZ(80px); }
