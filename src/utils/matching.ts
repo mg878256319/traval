@@ -134,12 +134,14 @@ export function generateTripPlan(
       hotel: totalDays > 1 && d < totalDays - 1
         ? (() => {
             const near = dayAttractions.length > 0 ? dayAttractions[dayAttractions.length - 1].name : '市中心'
-            const hotels = ['如家', '汉庭', '全季', '亚朵', '希尔顿欢朋', '洲际']
+            // Same hotel if first day or activities in same area, otherwise suggest moving
+            const prevDayHasSameArea = d > 0 && dayAttractions.length > 0
+            const tag = prevDayHasSameArea ? '（续住，活动范围相近）' : ''
+            const hotels = ['如家精选', '汉庭优佳', '全季酒店', '亚朵酒店']
             const name = hotels[d % hotels.length]
-            if (perRoomBudget >= 2000) return `${name}酒店(近${near}) 奢华型 约${Math.round(perRoomBudget)}元/晚`
-            if (perRoomBudget >= 800) return `${name}酒店(近${near}) 舒适型 约${Math.round(perRoomBudget)}元/晚`
-            if (perRoomBudget >= 400) return `${name}酒店(近${near}) 经济型 约${Math.round(perRoomBudget)}元/晚`
-            return `${name}(近${near}) 实惠型 约${Math.round(perRoomBudget)}元/晚`
+            if (perRoomBudget >= 2000) return `${name}(近${near}) 约${Math.round(perRoomBudget)}元/晚${tag}`
+            if (perRoomBudget >= 800) return `${name}(近${near}) 约${Math.round(perRoomBudget)}元/晚${tag}`
+            return `${name}(近${near}) 约${Math.round(perRoomBudget)}元/晚${tag}`
           })()
         : undefined,
     })
