@@ -18,6 +18,6 @@ export default function App() {
           <Route path="/favorites" element={<FavoritesPage />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
