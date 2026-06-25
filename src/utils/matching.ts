@@ -132,11 +132,12 @@ export function generateTripPlan(
         destination.foods[Math.floor(Math.random() * destination.foods.length)],
       ],
       hotel: totalDays > 1 && d < totalDays - 1
-        ? (perRoomBudget >= 2000
-            ? `奢华型：${destination.name}顶级五星/度假酒店 约${Math.round(perRoomBudget)}元/晚`
-            : perRoomBudget >= 800
-              ? `舒适型：${destination.accommodation.comfort}`
-              : `${destination.accommodation.budget}`)
+        ? (() => {
+            const near = dayAttractions.length > 0 ? dayAttractions[dayAttractions.length - 1].name : '市中心'
+            if (perRoomBudget >= 2000) return `🏨 近${near} | 奢华型 约${Math.round(perRoomBudget)}元/晚`
+            if (perRoomBudget >= 800) return `🏨 近${near} | ${destination.accommodation.comfort}`
+            return `🏨 近${near} | ${destination.accommodation.budget}`
+          })()
         : undefined,
     })
   }
