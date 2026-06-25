@@ -75,23 +75,20 @@ export function matchDestination(params: SearchParams): Destination {
 
   const pool = budgetOk.length > 0 ? budgetOk : (budgetRelaxed.length > 0 ? budgetRelaxed : (candidates.length > 0 ? candidates : destinations))
 
-  // Weighted random: tag overlap is HEAVILY weighted to ensure relevance
+  // Weighted random with diversity — every destination has a decent chance
   const scored = pool.map((d) => {
     const tagOverlap = params.tags.length > 0
       ? d.tags.filter((t) => params.tags.includes(t)).length
       : 0
-    // If user selected tags, destinations with no tag match get very low weight
-    const tagWeight = params.tags.length > 0 && tagOverlap === 0 ? 0.1 : 1
-    return { dest: d, weight: tagWeight * (1 + tagOverlap * 5) }
+    // Weight = 1 (base) + up to 3 bonus for tag match + random jitter
+    const weight = 1 + Math.min(tagOverlap, 3) * 1.5 + Math.random() * 2
+    return { dest: d, weight }
   })
 
-  const totalWeight = scored.reduce((s, x) => s + x.weight, 0)
-  let roll = Math.random() * totalWeight
-  for (const { dest, weight } of scored) {
-    roll -= weight
-    if (roll <= 0) return dest
-  }
-  return scored[scored.length - 1].dest
+  // Sort by weight descending, then pick from top half for relevance
+  scored.sort((a, b) => b.weight - a.weight)
+  const topHalf = scored.slice(0, Math.max(Math.ceil(scored.length / 2), 1))
+  return topHalf[Math.floor(Math.random() * topHalf.length)].dest
 }
 
 export function generateTripPlan(

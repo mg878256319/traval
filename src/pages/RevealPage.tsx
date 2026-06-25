@@ -31,7 +31,8 @@ export default function RevealPage() {
         setStatusText('🤖 AI正在为你挑选目的地...')
         try {
           resultRef.current = await generateAIPlan(params)
-        } catch {
+        } catch (err) {
+          setStatusText(`❌ AI失败: ${err instanceof Error ? err.message : '未知错误'}，使用本地模式`)
           const destination = matchDestination(params)
           const plan = generateTripPlan(destination, params)
           resultRef.current = {
